@@ -447,13 +447,8 @@
   </div>
 
   <script>
-    const STUDENTS_URL = window.location.hostname === 'localhost'
-      ? 'http://localhost:3000'
-      : 'https://students-api-your-railway-url.railway.app';
-
-    const COURSES_URL = window.location.hostname === 'localhost'
-      ? 'http://localhost:3001'
-      : 'https://courses-api-your-railway-url.railway.app';
+    const STUDENTS_URL = 'https://student-api-production-73a6.up.railway.app';
+    const COURSES_URL = 'https://university-paas-production.up.railway.app';
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {

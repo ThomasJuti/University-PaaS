@@ -119,6 +119,120 @@ docker compose down
 
 ---
 
+## Desplegar en Railway
+
+### Paso 1: Crear proyecto en Railway
+a
+1. Ve a [railway.app](https://railway.app)
+2. Inicia sesión con GitHub
+3. Click en **"New Project"**
+4. Selecciona **"Empty Project"**
+5. Nombra el proyecto (ej: `university-paas`)
+
+### Paso 2: Agregar PostgreSQL
+
+1. En el dashboard del proyecto, click en **"Add Plugin"**
+2. Selecciona **"PostgreSQL"**
+3. Espera a que-provisione
+4. Click en **"PostgreSQL"** > **"Service Settings"**
+5. Copia el valor de `DATABASE_URL` (lo necesitarás después)
+
+### Paso 3: Desplegar Students API
+
+1. Click en **"New"** > **"GitHub Repo"**
+2. Selecciona tu repositorio de GitHub
+3. En **"Root Directory"** selecciona `students-api`
+4. En **"Environment Variables"** agrega:
+   ```
+   DATABASE_URL=<el-valor-que-copiaste-del-paso-2>
+   ```
+5. Click en **"Deploy"**
+6. Espera a que termine el build
+
+**Anota la URL pública del servicio** (está en el dashboard, algo como `https://students-api-xxxx.railway.app`)
+
+### Paso 4: Desplegar Courses API
+
+1. Click en **"New"** > **"GitHub Repo"**
+2. Selecciona tu repositorio
+3. En **"Root Directory"** selecciona `courses-api`
+4. En **"Environment Variables"** agrega:
+   ```
+   DATABASE_URL=<el-valor-del-paso-2>
+   STUDENTS_SERVICE_URL=https://<la-url-del-students-api>
+   ```
+   Ejemplo: `STUDENTS_SERVICE_URL=https://students-api-abc123.railway.app`
+5. Click en **"Deploy"**
+
+### Paso 5: Verificar
+
+```
+https://<students-api-url>/health
+https://<courses-api-url>/health
+```
+
+Ambas deben responder `{ "status": "ok", "service": "..." }`
+
+---
+
+## Desplegar en Render
+
+### Paso 1: Crear cuenta
+
+1. Ve a [render.com](https://render.com)
+2. Inicia sesión con GitHub
+3. Click en **"New"** > **"Web Service"**
+
+### Paso 2: Desplegar Students API
+
+1. **Name**: `students-api`
+2. **Git Repository**: Conecta tu repositorio GitHub
+3. **Root Directory**: `students-api`
+4. **Environment**: `Node`
+5. **Build Command**: (dejar vacío)
+6. **Start Command**: `node index.js`
+7. Click en **"Advanced"** > **"Add Environment Variable"**:
+   ```
+   DATABASE_URL=<valor-de-postgresql>
+   ```
+8. Click en **"Create Web Service"**
+
+**Anota la URL del servicio** (ej: `https://students-api.onrender.com`)
+
+### Paso 3: Crear PostgreSQL
+
+1. Click en **"New"** > **"PostgreSQL"**
+2. **Name**: `university-db`
+3. Selecciona la región más cercana
+4. Click en **"Create Database"**
+5. Espera a que-provisione
+6. En **"Connections"** copia el valor de `Internal Database URL`
+
+### Paso 4: Desplegar Courses API
+
+1. Click en **"New"** > **"Web Service"**
+2. **Name**: `courses-api`
+3. **Git Repository**: Tu repositorio
+4. **Root Directory**: `courses-api`
+5. **Environment**: `Node`
+6. **Build Command**: (vacío)
+7. **Start Command**: `node index.js`
+8. Click en **"Advanced"** > **"Add Environment Variables"**:
+   ```
+   DATABASE_URL=<Internal-Database-URL-del-paso-3>
+   STUDENTS_SERVICE_URL=https://students-api.onrender.com
+   ```
+9. Click en **"Create Web Service"**
+
+### Paso 5: Importante - Evitar que duerman
+
+En el tier gratuito, Render apaga los servicios después de 15 min de inactividad. Para evitarlo:
+
+1. Ve al dashboard de cada servicio
+2. Click en **"Cron Schedule"**
+3. Habilita un cron que ejecute cada 5 minutos (opción gratuita)
+4. O simplemente haz upgrade a un plan pagado
+
 ---
 
 ## Variables de Entorno
